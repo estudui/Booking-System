@@ -1,11 +1,12 @@
 using System.Drawing;
 using BookSystemApi.Data;
 using BookSystemApi.Entities;
+using BookSystemApi.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookSystemApi.Repositories
 {
-    public class ProductRepository
+    public class ProductRepository : IProductRepository
     {
         private readonly ApplicationDbContext _context;
 
@@ -20,7 +21,7 @@ namespace BookSystemApi.Repositories
             return await _context.Products.ToListAsync();
         }
 
-        public async Task<Product?> GetByIdAsync(int id)
+        public async Task<Product?> GetProductByIdAsync(int id)
         {
             return await _context.Products.FindAsync(id);
         }
@@ -38,7 +39,7 @@ namespace BookSystemApi.Repositories
         }
         
         // Deletes a product by its ID
-        public async Task DeleteAsync(int id)
+        public async Task DeleteProductAsync(int id)
         {
             // Finds the product in the database using the provided ID
             var product = await _context.Products.FindAsync(id);
