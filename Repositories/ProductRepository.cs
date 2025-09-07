@@ -1,5 +1,7 @@
 using System.Drawing;
 using BookSystemApi.Data;
+using BookSystemApi.Dto;
+using BookSystemApi.Dto.Product;
 using BookSystemApi.Entities;
 using BookSystemApi.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +33,31 @@ namespace BookSystemApi.Repositories
             await _context.Products.AddAsync(product);
             await _context.SaveChangesAsync();
         }
+
+        // public async Task AddProductAsyncRaw(Product product)
+        // {
+        //     var rows = await _context.Database.ExecuteSqlRawAsync("INSERT INTO Products (Name, Price) VALUES ({0}, {1})", product.Name, product.Price);
+        //     Console.WriteLine($"Rows affected: {rows}");
+
+        // }
+
+        public async Task<int> AddProductAsyncRaw(Product product)
+        {
+            return await _context.Database.ExecuteSqlRawAsync(
+                "INSERT INTO \"Products\" (\"Name\", \"Price\") VALUES ({0}, {1})",
+                product.Name, product.Price
+            );
+
+        }
+
+        public async Task<IEnumerable<ProductResponseNew>> GetProductByIdAsyncRaw(string id)
+        {
+            return await _context.Set<ProductResponseNew>().FromSqlRaw(
+                "SELECT \"Name\", \"Price\" FROM \"Products\" WHERE \"Id\" = {0}",
+                id
+            ).ToListAsync();
+        }
+        
 
         public async Task UpdateProductAsync(Product product)
         {

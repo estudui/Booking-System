@@ -24,11 +24,11 @@ namespace BookSystemApi.Controllers
 
         // Handles HTTP GET request to fetch a single product by ID
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(string id)
         {
             try
             {
-                var product = await _productService.GetProductByIdAsync(id); // Calls service to fetch product by ID
+                var product = await _productService.GetProductByIdAsyncRaw(id); // Calls service to fetch product by ID
                 return Ok(product); // Returns 200 OK response if found
             }
             catch (KeyNotFoundException)
@@ -39,10 +39,17 @@ namespace BookSystemApi.Controllers
 
         // Handles HTTP POST request to add a new product
         [HttpPost]
-        public async Task<IActionResult> Add(ProductRequestDto productDto)
+        public  IActionResult Add([FromBody] ProductRequestDto productDto)
         {
-            await _productService.AddProductAsync(productDto); // Calls service to add a new product
-            return CreatedAtAction(nameof(GetById), new { id = productDto.Id }, productDto); 
+            Console.WriteLine($"POST {System.Text.Json.JsonSerializer.Serialize(productDto)}");
+            if (productDto == null)
+            {
+                return BadRequest("The productDto field is required.");
+            }
+            var result = _productService.AddProductAsync(productDto); // Calls service to add a new product
+
+            return Ok(new { RowsAffected = result });
+            // return CreatedAtAction(nameof(GetById), new { id = productDto.Id }, productDto); 
             // Returns 201 Created response with location header pointing to the new product
         }
 

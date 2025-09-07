@@ -1,4 +1,5 @@
 using BookSystemApi.Dto;
+using BookSystemApi.Dto.Product;
 using BookSystemApi.Entities;
 using BookSystemApi.Repositories.Interfaces;
 using BookSystemApi.Services.Interfaces;
@@ -28,6 +29,7 @@ namespace BookSystemApi.Services
         public async Task<ProductResponseDto> GetProductByIdAsync(int id)
         {
             var product = await _productRepository.GetProductByIdAsync(id);
+            // var product = await _productRepository.GetProductByIdAsyncRaw(id);
             if (product == null)
             {
                 throw new KeyNotFoundException("Product not found");
@@ -41,6 +43,18 @@ namespace BookSystemApi.Services
             };
         }
 
+        public async Task<IEnumerable<ProductResponseNew>> GetProductByIdAsyncRaw(string id)
+        {
+            var product = await _productRepository.GetProductByIdAsyncRaw(id);
+            // var product = await _productRepository.GetProductByIdAsyncRaw(id);
+            if (product == null)
+            {
+                throw new KeyNotFoundException("Product not found");
+            }
+
+            return product;
+        }
+
         public async Task AddProductAsync(ProductRequestDto product)
         {
             var newProduct = new Product
@@ -49,7 +63,9 @@ namespace BookSystemApi.Services
                 Price = product.Price
             };
 
-            await _productRepository.AddProductAsync(newProduct);
+            // await _productRepository.AddProductAsync(newProduct);
+            Console.WriteLine("TAMBAH PRODUK : ", newProduct.Name);
+            await _productRepository.AddProductAsyncRaw(newProduct);
         }
 
         // Updates an existing product with new data
