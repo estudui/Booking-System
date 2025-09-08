@@ -1,9 +1,12 @@
+using System.Text;
 using BookSystemApi.Data;
 using BookSystemApi.Repositories;
 using BookSystemApi.Repositories.Interfaces;
 using BookSystemApi.Services;
 using BookSystemApi.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +14,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ApiResponseFilter>();
+});
 
 // Configure PostgreSQL connection
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -22,10 +28,32 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Register repositories and services
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IMsDivisionRepository, MsDivisionRepository>();
+builder.Services.AddScoped<IMsDivisionService, MsDivisionService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Tambahkan Authentication JWT
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        var config = builder.Configuration;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = config["Jwt:Issuer"],
+            ValidAudience = config["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]!))
+        };
+    });
+
+builder.Services.AddAuthorization();
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
