@@ -18,6 +18,7 @@ namespace BookSystemApi.Data
             modelBuilder.Entity<ProductResponseNew>().HasNoKey();
             modelBuilder.Entity<DivisionDto>().HasNoKey();
             modelBuilder.Entity<UserAuthDto>().HasNoKey();
+            modelBuilder.Entity<Rooms>().HasNoKey();
         }
 
         public DbSet<Product> Products { get; set; }
