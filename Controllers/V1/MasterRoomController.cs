@@ -1,5 +1,6 @@
 using BookSystemApi.Dto.Room;
 using BookSystemApi.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookSystemApi.Controllers.V1
@@ -44,6 +45,7 @@ namespace BookSystemApi.Controllers.V1
             }
         }
         
+        [Authorize]
         [HttpPost("rooms/raw")]
         public async Task<IActionResult> AddRoomAsynRaw([FromBody] ReqRoom reqRoom)
         {

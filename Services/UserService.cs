@@ -24,7 +24,7 @@ namespace BookSystemApi.Services
             bool isValid = BCrypt.Net.BCrypt.Verify(loginDto.Password, user.Password_Hash);
             if (!isValid) return null;
 
-            return _tokenService.GenerateToken(user.Email, user.Full_Name);
+            return _tokenService.GenerateToken(user.Email, user.Full_Name, user.Id.ToString());
         }
 
         public async Task<string> AddUserAsynRaw(UserDto user)

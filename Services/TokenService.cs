@@ -14,7 +14,7 @@ namespace BookSystemApi.Services
             _config = config;
         }
 
-        public string GenerateToken(string email, string fullName)
+        public string GenerateToken(string email, string fullName, string userId)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -22,7 +22,8 @@ namespace BookSystemApi.Services
             var claims = new[]
             {
                 new Claim(ClaimTypes.Email, email),
-                new Claim(ClaimTypes.Name, fullName)
+                new Claim(ClaimTypes.Name, fullName),
+                new Claim(ClaimTypes.Sid, userId.ToString())
             };
 
             var token = new JwtSecurityToken(

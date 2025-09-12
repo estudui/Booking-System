@@ -4,6 +4,9 @@ namespace BookSystemApi.Dto.User
 {
     public class UserAuthDto
     {
+        [Column("ID")]
+        public int Id { get; set; }
+
         [Column("EMAIL")]
         public string Email { get; set; } = string.Empty;
 
