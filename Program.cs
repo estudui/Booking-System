@@ -7,8 +7,24 @@ using BookSystemApi.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Env.Load(); // Load .env file
+
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables();
+
+// Ambil connection string dari env kalau ada, fallback ke appsettings.json
+var host = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
+var db = Environment.GetEnvironmentVariable("DB_NAME") ?? "booking_sys";
+var user = Environment.GetEnvironmentVariable("DB_USER") ?? "postgres";
+var pass = Environment.GetEnvironmentVariable("DB_PASS") ?? "password";
+
+var finalConn = $"Host={host};Database={db};Username={user};Password={pass}";
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -21,7 +37,7 @@ builder.Services.AddControllers(options =>
 
 // Configure PostgreSQL connection
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+    options.UseNpgsql(finalConn)
 );
 
 
@@ -62,6 +78,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
+// Setup Serilog
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -71,6 +95,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// Add CorrelationIdMiddleware
+app.UseMiddleware<CorrelationIdMiddleware>();
 
 // app.UseHttpsRedirection();
 

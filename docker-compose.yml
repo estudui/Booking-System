@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+  bookingsystemapi:
+    build: .
+    container_name: bookingsystemapi
+    ports:
+      - "8080:5000"
+      - "8443:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      DB_HOST: host.docker.internal
+      DB_NAME: booking_sys
+      DB_USER: postgres
+      DB_PASS: password

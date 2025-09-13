@@ -10,10 +10,12 @@ namespace BookSystemApi.Controllers.V1
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly ILogger<UserController> _logger;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, ILogger<UserController> logger)
         {
             _userService = userService;
+            _logger = logger;
         }
 
         [HttpPost("user/raw")]
@@ -42,6 +44,7 @@ namespace BookSystemApi.Controllers.V1
         [HttpPost("user/login")]
         public async Task<IActionResult> LoginAsync([FromBody] ReqLoginDto loginDto)
         {
+            _logger.LogInformation("Login attempt for email: {Email}", loginDto.Email);
             var token = await _userService.LoginAsync(loginDto);
 
             if (token == null)
@@ -53,9 +56,11 @@ namespace BookSystemApi.Controllers.V1
                         String.Empty
                     );
 
+                _logger.LogWarning("Login failed for email: {Email}", loginDto.Email);
                 return Unauthorized(custom);
             }
 
+            _logger.LogInformation("Login successful for email: {Email}", loginDto.Email);
             return Ok(new { token });
         }
 
